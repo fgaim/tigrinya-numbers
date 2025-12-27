@@ -11,7 +11,7 @@ DIGITS = {
     3: "ሰለስተ",
     4: "ኣርባዕተ",
     5: "ሓሙሽተ",
-    6: "ሽድሽተ",
+    6: "ሽዱሽተ",
     7: "ሸውዓተ",
     8: "ሸሞንተ",
     9: "ትሽዓተ",
@@ -31,7 +31,7 @@ TENS = {
 }
 
 # Hundred forms
-HUNDRED = "ሚእት"  # Used in compounds (before ን)
+HUNDRED_COMPOUND = "ሚእት"  # Used in compounds (before ን)
 HUNDRED_STANDALONE = "ሚእቲ"  # Used when standing alone
 
 # Large number scales (descending order for processing)
@@ -51,3 +51,79 @@ ZERO_LOCAL = "ባዶ"  # Local word
 
 # Conjunction suffix
 CONJUNCTION = "ን"
+
+# =============================================================================
+# ORDINALS
+# =============================================================================
+
+# Ordinals 1st-10th (masculine)
+ORDINALS_MASCULINE = {
+    1: "ቀዳማይ",
+    2: "ካልኣይ",
+    3: "ሳልሳይ",
+    4: "ራብዓይ",
+    5: "ሓሙሻይ",
+    6: "ሻድሻይ",
+    7: "ሻውዓይ",
+    8: "ሻምናይ",
+    9: "ታሽዓይ",
+    10: "ዓስራይ",
+}
+
+# Ordinals 1st-10th (feminine)
+ORDINALS_FEMININE = {
+    1: "ቀዳመይቲ",
+    2: "ካልአይቲ",
+    3: "ሳልሰይቲ",
+    4: "ራብዐይቲ",
+    5: "ሓሙሸይቲ",
+    6: "ሻድሸይቲ",
+    7: "ሻውዐይቲ",
+    8: "ሻምነይቲ",
+    9: "ታሽዐይቲ",
+    10: "ዓስረይቲ",
+}
+
+# Prefix for ordinals 11th and above
+ORDINAL_PREFIX = "መበል"
+
+# =============================================================================
+# CURRENCY
+# =============================================================================
+
+# Currency definitions: (main_unit, subunit, subunits_per_main)
+CURRENCIES = {
+    "ERN": ("ናቕፋ", "ሳንቲም", 100),  # Eritrean Nakfa (default)
+    "ETB": ("ብር", "ሳንቲም", 100),  # Ethiopian Birr
+    "USD": ("ዶላር", "ሳንቲም", 100),  # US Dollar
+    "EUR": ("ዩሮ", "ሳንቲም", 100),  # Euro
+}
+
+DEFAULT_CURRENCY = "ERN"
+
+# =============================================================================
+# DATE AND TIME
+# =============================================================================
+
+# Gregorian month names (1-12)
+MONTHS = {
+    1: "ጥሪ",
+    2: "ለካቲት",
+    3: "መጋቢት",
+    4: "ሚያዝያ",
+    5: "ግንቦት",
+    6: "ሰነ",
+    7: "ሓምለ",
+    8: "ነሓሰ",
+    9: "መስከረም",
+    10: "ጥቅምቲ",
+    11: "ሕዳር",
+    12: "ታሕሳስ",
+}
+
+# Time words
+TIME_HOUR = "ሰዓት"
+TIME_MINUTE = "ደቒቕ"
+
+# Year era (AD)
+YEAR_ERA = "ሓባራዊ ዘመን"
