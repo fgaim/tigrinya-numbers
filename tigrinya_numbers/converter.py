@@ -121,8 +121,7 @@ def _convert_under_1000(n: int, add_hade: bool) -> list[str]:
     Convert a number 1-999 to a list of parts.
 
     Returns:
-        List of parts. Each part is a string that will receive ן
-        when in a compound number.
+        List of parts. Each part is a string that will receive ን when in a compound number.
 
     Examples:
         7   → ["ሸውዓተ"]
@@ -242,7 +241,7 @@ def num_to_ordinal(n: int, feminine: bool = False) -> str:
 # =============================================================================
 
 
-def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY) -> str:
+def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY, add_hade: bool = True) -> str:
     """
     Convert a monetary amount to Tigrinya words.
 
@@ -285,12 +284,12 @@ def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY) -> str:
 
     # Main amount
     if main_amount > 0:
-        main_words = num_to_tigrinya(main_amount)
+        main_words = num_to_tigrinya(main_amount, add_hade=add_hade)
         parts.append((main_words, main_unit))
 
     # Subunit amount
     if sub_amount > 0:
-        sub_words = num_to_tigrinya(sub_amount)
+        sub_words = num_to_tigrinya(sub_amount, add_hade=add_hade)
         parts.append((sub_words, subunit))
 
     # Handle zero amount
@@ -303,11 +302,11 @@ def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY) -> str:
         words, unit = parts[0]
         return f"{words} {unit}"
     else:
-        # Multiple parts: add conjunction
-        # Format: Xን main_unitን Yን subunitን
+        # Multiple parts: add conjunction to units, amounts follow cardinal rules
+        # Format: X main_unitን Y subunitን (amounts already have ן if compound)
         main_words, main_unit = parts[0]
         sub_words, subunit = parts[1]
-        return f"{_add_conjunction(main_words)} {_add_conjunction(main_unit)} {_add_conjunction(sub_words)} {_add_conjunction(subunit)}"
+        return f"{main_words} {_add_conjunction(main_unit)} {sub_words} {_add_conjunction(subunit)}"
 
 
 # =============================================================================

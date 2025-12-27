@@ -455,25 +455,19 @@ class TestCurrencyNakfa:
         assert num_to_currency(5) == "ሓሙሽተ ናቕፋ"
 
     def test_with_cents(self):
-        result = num_to_currency(5.50)
-        assert "ሓሙሽተን" in result
-        assert "ናቕፋን" in result
-        assert "ሓምሳን" in result
-        assert "ሳንቲምን" in result
+        # Both amounts follow cardinal rules: simple numbers don't get ን
+        assert num_to_currency(5.50) == "ሓሙሽተ ናቕፋን ሓምሳ ሳንቲምን"
+        assert num_to_currency(51.51) == "ሓምሳን ሓደን ናቕፋን ሓምሳን ሓደን ሳንቲምን"
 
     def test_cents_only(self):
-        result = num_to_currency(0.25)
-        assert "ዕስራን" in result
-        assert "ሓሙሽተን" in result
-        assert "ሳንቲም" in result
+        assert num_to_currency(0.25) == "ዕስራን ሓሙሽተን ሳንቲም"
 
     def test_zero_amount(self):
         assert num_to_currency(0) == "ዜሮ ናቕፋ"
 
     def test_large_amount(self):
-        result = num_to_currency(1234.56)
-        assert "ሽሕ" in result
-        assert "ናቕፋ" in result
+        assert num_to_currency(1234.56) == "ሓደ ሽሕን ክልተ ሚእትን ሰላሳን ኣርባዕተን ናቕፋን ሓምሳን ሽዱሽተን ሳንቲምን"
+        assert num_to_currency(1234.56, add_hade=False) == "ሽሕን ክልተ ሚእትን ሰላሳን ኣርባዕተን ናቕፋን ሓምሳን ሽዱሽተን ሳንቲምን"
 
 
 class TestCurrencyBirr:
@@ -483,9 +477,7 @@ class TestCurrencyBirr:
         assert num_to_currency(50, currency="ETB") == "ሓምሳ ብር"
 
     def test_birr_with_cents(self):
-        result = num_to_currency(10.75, currency="ETB")
-        assert "ብር" in result
-        assert "ሳንቲም" in result
+        assert num_to_currency(10.75, currency="ETB") == "ዓሰርተ ብርን ሰብዓን ሓሙሽተን ሳንቲምን"
 
 
 class TestCurrencyOther:
