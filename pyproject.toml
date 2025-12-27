@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tigrinya-numbers"
+version = "0.1.0"
+description = "Convert numbers to Tigrinya words"
+authors = [
+    { name = "Fitsum Gaim", email = "fgaim@geezlab.com" }
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Tigrinya",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Text Processing :: Linguistic",
+]
+keywords = ["tigrinya", "numbers", "eritrea", "ethiopia", "localization", "i18n"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/fgaim/tigrinya-numbers"
+Issues = "https://github.com/fgaim/tigrinya-numbers/issues"
+
+[tool.setuptools.packages.find]
+include = ["tigrinya_numbers*"]
+
+[tool.uv.workspace]
+members = [
+    "temp",
+]
