@@ -7,6 +7,8 @@ Converts integers to their Tigrinya word representation.
 from .constants import (
     CONJUNCTION,
     CURRENCIES,
+    DATE_DAY,
+    DATE_MONTH,
     DECIMAL_POINT,
     DEFAULT_CURRENCY,
     DIGITS,
@@ -354,16 +356,26 @@ def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY, add_hade: b
         return f"{main_words} {_add_conjunction(main_unit)} {sub_words} {_add_conjunction(subunit)}"
 
 
-def num_to_date(day: int, month: int, year: int | None = None) -> str:
+def num_to_date(
+    day: int,
+    month: int,
+    year: int | None = None,
+    add_hade: bool = False,
+    use_numeric: bool = False,
+) -> str:
     """
     Convert a date to Tigrinya words.
 
-    Format: Month Day [Year] (e.g., ታሕሳስ ዕስራን ሓሙሽተን)
+    Two formats supported:
+    - Calendar names (default): Month-name Day [Year] (e.g., ታሕሳስ ዕስራን ሓሙሽተን)
+    - Numeric (use_numeric=True): ዕለት Day ወርሒ Month [Year]
 
     Args:
         day: Day of month (1-31).
         month: Month number (1-12).
         year: Optional year (Gregorian).
+        add_hade: Whether to add ሓደ before 1000 in year (default False).
+        use_numeric: If True, use numeric month with day/month markers (default False).
 
     Returns:
         The Tigrinya date word representation.
@@ -374,24 +386,36 @@ def num_to_date(day: int, month: int, year: int | None = None) -> str:
     Examples:
         >>> num_to_date(25, 12)
         'ታሕሳስ ዕስራን ሓሙሽተን'
-        >>> num_to_date(1, 1, 2025)
-        'ጥሪ ሓደ ክልተ ሽሕን ዕስራን ሓሙሽተን'
-        >>> num_to_date(15, 6)
-        'ሰነ ዓሰርተ ሓሙሽተ'
+        >>> num_to_date(24, 5, 1991)
+        'ግንቦት ዕስራን ኣርባዕተን ሽሕን ትሽዓተ ሚእትን ቴስዓን ሓደን'
+        >>> num_to_date(24, 5, 1991, add_hade=True)
+        'ግንቦት ዕስራን ኣርባዕተን ሓደ ሽሕን ትሽዓተ ሚእትን ቴስዓን ሓደን'
+        >>> num_to_date(24, 5, 1991, use_numeric=True)
+        'ዕለት ዕስራን ኣርባዕተን ወርሒ ሓሙሽተ ሽሕን ትሽዓተ ሚእትን ቴስዓን ሓደን'
     """
     if not (1 <= month <= 12):
         raise ValueError(f"Month must be 1-12, got {month}")
     if not (1 <= day <= 31):
         raise ValueError(f"Day must be 1-31, got {day}")
 
-    month_name = MONTHS[month]
     day_words = num_to_tigrinya(day)
 
-    if year is not None:
-        year_words = num_to_tigrinya(year)
-        return f"{month_name} {day_words} {year_words}"
+    if use_numeric:
+        # Numeric format: ዕለት [day] ወርሒ [month] [year]
+        month_words = num_to_tigrinya(month)
+        parts = [f"{DATE_DAY} {day_words}", f"{DATE_MONTH} {month_words}"]
+        if year is not None:
+            year_words = num_to_tigrinya(year, add_hade=add_hade)
+            parts.append(year_words)
+        return " ".join(parts)
     else:
-        return f"{month_name} {day_words}"
+        # Calendar format: Month-name Day [Year]
+        month_name = MONTHS[month]
+        if year is not None:
+            year_words = num_to_tigrinya(year, add_hade=add_hade)
+            return f"{month_name} {day_words} {year_words}"
+        else:
+            return f"{month_name} {day_words}"
 
 
 def num_to_time(

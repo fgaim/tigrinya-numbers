@@ -621,6 +621,48 @@ class TestDateEdgeCases:
             num_to_date(1, 0)
 
 
+class TestDateAddHade:
+    """Test the add_hade parameter for date year verbalization."""
+
+    def test_default_no_hade(self):
+        # Default: 1991 -> ሽሕን... (no ሓደ before ሽሕ)
+        result = num_to_date(24, 5, 1991)
+        assert result == "ግንቦት ዕስራን ኣርባዕተን ሽሕን ትሽዓተ ሚእትን ቴስዓን ሓደን"
+        assert "ሓደ ሽሕ" not in result
+
+    def test_with_hade(self):
+        # add_hade=True: 1991 -> ሓደ ሽሕን... (includes ሓደ)
+        result = num_to_date(24, 5, 1991, add_hade=True)
+        assert result == "ግንቦት ዕስራን ኣርባዕተን ሓደ ሽሕን ትሽዓተ ሚእትን ቴስዓን ሓደን"
+        assert "ሓደ ሽሕ" in result
+
+
+class TestDateUseNumeric:
+    """Test the use_numeric parameter for numeric date format."""
+
+    def test_numeric_format_no_year(self):
+        # Numeric: ዕለት [day] ወርሒ [month]
+        result = num_to_date(25, 12, use_numeric=True)
+        assert result == "ዕለት ዕስራን ሓሙሽተን ወርሒ ዓሰርተ ክልተ"
+
+    def test_numeric_format_with_year(self):
+        # Numeric with year
+        result = num_to_date(24, 5, 1991, use_numeric=True)
+        assert result == "ዕለት ዕስራን ኣርባዕተን ወርሒ ሓሙሽተ ሽሕን ትሽዓተ ሚእትን ቴስዓን ሓደን"
+
+    def test_numeric_with_add_hade(self):
+        # Both flags combined
+        result = num_to_date(24, 5, 1991, use_numeric=True, add_hade=True)
+        assert result == "ዕለት ዕስራን ኣርባዕተን ወርሒ ሓሙሽተ ሓደ ሽሕን ትሽዓተ ሚእትን ቴስዓን ሓደን"
+
+    def test_compare_calendar_vs_numeric(self):
+        # Compare both formats for same date
+        calendar = num_to_date(25, 12)
+        numeric = num_to_date(25, 12, use_numeric=True)
+        assert "ታሕሳስ ዕስራን ሓሙሽተን" == calendar  # Month name in calendar
+        assert "ዕለት ዕስራን ሓሙሽተን ወርሒ ዓሰርተ ክልተ" == numeric  # Month marker in numeric
+
+
 # =============================================================================
 # TIME
 # =============================================================================

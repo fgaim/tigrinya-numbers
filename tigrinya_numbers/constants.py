@@ -129,5 +129,9 @@ TIME_HOUR = "ሰዓት"
 TIME_MINUTE = "ደቒቕ"
 TIME_SECOND = "ካልኢት"
 
+# Date markers (for numeric format)
+DATE_DAY = "ዕለት"
+DATE_MONTH = "ወርሒ"
+
 # Year era (AD)
 YEAR_ERA = "ሓባራዊ ዘመን"
