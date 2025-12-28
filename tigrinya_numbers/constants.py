@@ -124,6 +124,7 @@ MONTHS = {
 # Time words
 TIME_HOUR = "ሰዓት"
 TIME_MINUTE = "ደቒቕ"
+TIME_SECOND = "ካልኢት"
 
 # Year era (AD)
 YEAR_ERA = "ሓባራዊ ዘመን"

@@ -578,42 +578,61 @@ class TestDateEdgeCases:
 
 
 class TestTimeOnTheHour:
-    """Test time conversion on the hour."""
+    """Test time conversion on the hour (hour only, no minutes)."""
 
     def test_three_oclock(self):
-        assert num_to_time(3, 0) == "ሰዓት ሰለስተ"
+        # Hour only: use just hour arg (minute=None)
+        assert num_to_time(3) == "ሰዓት ሰለስተ"
 
     def test_twelve_oclock(self):
-        assert num_to_time(12, 0) == "ሰዓት ዓሰርተ ክልተ"
+        assert num_to_time(12) == "ሰዓት ዓሰርተ ክልተ"
 
     def test_midnight_as_twelve(self):
         # Hour 0 should display as 12
-        assert num_to_time(0, 0) == "ሰዓት ዓሰርተ ክልተ"
+        assert num_to_time(0) == "ሰዓት ዓሰርተ ክልተ"
 
 
 class TestTimeWithMinutes:
     """Test time conversion with minutes."""
 
     def test_three_forty_five(self):
-        result = num_to_time(3, 45)
-        assert "ሰዓት" in result
-        assert "ሰለስተን" in result
-        assert "ኣርብዓን" in result
-        assert "ሓሙሽተን" in result
-        assert "ደቒቕን" in result
+        assert num_to_time(3, 45) == "ሰዓት ሰለስተን ኣርብዓን ሓሙሽተን ደቒቕን"
 
     def test_twelve_thirty(self):
-        result = num_to_time(12, 30)
-        assert "ሰዓት" in result
-        assert "ሰላሳን" in result
-        assert "ደቒቕን" in result
+        # 30 is a simple number (round tens), marker carries conjunction
+        assert num_to_time(12, 30) == "ሰዓት ዓሰርተ ክልተን ሰላሳ ደቒቕን"
+        assert num_to_time(12, 30, add_deqiq=False) == "ሰዓት ዓሰርተ ክልተን ሰላሳን"
 
     def test_one_fifteen(self):
-        result = num_to_time(1, 15)
-        assert "ሰዓት" in result
-        assert "ሓደን" in result
-        assert "ዓሰርተ ሓሙሽተን" in result
-        assert "ደቒቕን" in result
+        # 15 is a teen (simple number), marker carries conjunction
+        assert num_to_time(1, 15) == "ሰዓት ሓደን ዓሰርተ ሓሙሽተ ደቒቕን"
+        assert num_to_time(1, 15, add_deqiq=False) == "ሰዓት ሓደን ዓሰርተ ሓሙሽተን"
+
+    def test_minute_only(self):
+        # No hour: minute marker is mandatory
+        assert num_to_time(minute=30) == "ሰላሳ ደቒቕን"
+        assert num_to_time(minute=45) == "ኣርብዓን ሓሙሽተን ደቒቕን"
+
+
+class TestTimeWithSeconds:
+    """Test time conversion with seconds."""
+
+    def test_with_minutes_and_seconds(self):
+        # 1:30:45 - markers are mandatory when seconds present
+        assert num_to_time(1, 30, 45) == "ሰዓት ሓደን ሰላሳ ደቒቕን ኣርብዓን ሓሙሽተን ካልኢትን"
+
+    def test_simple_seconds(self):
+        # 3:30:15 - 30 is simple (ሰላሳ), marker carries conjunction
+        assert num_to_time(3, 30, 15) == "ሰዓት ሰለስተን ሰላሳ ደቒቕን ዓሰርተ ሓሙሽተ ካልኢትን"
+
+    def test_minute_and_second_only(self):
+        # No hour: both markers mandatory
+        assert num_to_time(minute=30, second=15) == "ሰላሳ ደቒቕን ዓሰርተ ሓሙሽተ ካልኢትን"
+
+    def test_seconds_without_minutes_raises_error(self):
+        # Cannot skip middle value
+        with pytest.raises(ValueError, match="Cannot provide seconds without minutes"):
+            num_to_time(5, second=30)
 
 
 class TestTimeEdgeCases:
@@ -629,7 +648,11 @@ class TestTimeEdgeCases:
 
     def test_negative_hour_raises_error(self):
         with pytest.raises(ValueError, match="Hour must be 0-23"):
-            num_to_time(-1, 0)
+            num_to_time(-1)
+
+    def test_invalid_second_raises_error(self):
+        with pytest.raises(ValueError, match="Second must be 0-59"):
+            num_to_time(12, 30, 60)
 
 
 # =============================================================================
@@ -641,46 +664,33 @@ class TestPhoneBasic:
     """Test basic phone number conversion."""
 
     def test_phone_with_leading_zero(self):
-        result = num_to_phone("07")
         # Should be digit-by-digit: ዜሮ ሸውዓተ
-        assert "ዜሮ" in result
-        assert "ሸውዓተ" in result
+        assert num_to_phone("07") == "ዜሮ ሸውዓተ"
 
     def test_phone_pair_twelve(self):
-        result = num_to_phone("12")
         # Should be read as teen: ዓሰርተ ክልተ
-        assert "ዓሰርተ ክልተ" in result
+        assert num_to_phone("12") == "ዓሰርተ ክልተ"
 
     def test_phone_pair_thirty_four(self):
-        result = num_to_phone("34")
         # Should be read as compound: ሰላሳን ኣርባዕተን
-        assert "ሰላሳን" in result
-        assert "ኣርባዕተን" in result
+        assert num_to_phone("34") == "ሰላሳን ኣርባዕተን"
 
 
 class TestPhoneFormatted:
     """Test phone numbers with separators."""
 
     def test_phone_with_dashes(self):
-        result = num_to_phone("07-12-34")
-        assert "ዜሮ" in result
-        assert "ዓሰርተ ክልተ" in result
+        assert num_to_phone("07-12-34") == "ዜሮ ሸውዓተ ዓሰርተ ክልተ ሰላሳን ኣርባዕተን"
 
     def test_phone_with_spaces(self):
-        result = num_to_phone("07 12 34")
-        assert "ዜሮ" in result
+        assert num_to_phone("07 12 34") == "ዜሮ ሸውዓተ ዓሰርተ ክልተ ሰላሳን ኣርባዕተን"
 
 
 class TestPhoneLong:
     """Test full phone numbers."""
 
     def test_ten_digit_phone(self):
-        result = num_to_phone("0712345678")
-        parts = result.split()
-        # Should have multiple parts
-        assert len(parts) > 1
-        # First pair (07) should be digit-by-digit
-        assert "ዜሮ" in result
+        assert num_to_phone("0712345678") == "ዜሮ ሸውዓተ ዓሰርተ ክልተ ሰላሳን ኣርባዕተን ሓምሳን ሽዱሽተን ሰብዓን ሸሞንተን"
 
 
 class TestPhoneEdgeCases:
@@ -699,10 +709,8 @@ class TestPhoneEdgeCases:
         assert result == "ሓሙሽተ"
 
     def test_odd_number_of_digits(self):
-        result = num_to_phone("123")
-        # 12 as teen, 3 as single
-        assert "ዓሰርተ ክልተ" in result
-        assert "ሰለስተ" in result
+        # 12 as teen, 3 as single; TODO this is not ideal
+        assert num_to_phone("123") == "ዓሰርተ ክልተ ሰለስተ"
 
 
 if __name__ == "__main__":

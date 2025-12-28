@@ -13,14 +13,14 @@ A Python package to convert numbers to Tigrinya words.
 
 ### Functions
 
-| Feature | Function | Example |
+| Feature | Function Call | Example Output |
 |---------|----------|---------|
-| Cardinals | `num_to_tigrinya()` | 127 → ሓደ ሚእትን ዕስራን ሸውዓተን |
-| Ordinals | `num_to_ordinal()` | 1st → ቀዳማይ, 25th → መበል ዕስራን ሓሙሽተን |
-| Currency | `num_to_currency()` | 5.50 → ሓሙሽተ ናቕፋን ሓምሳን ሳንቲምን |
-| Dates | `num_to_date()` | Dec 25 → ታሕሳስ ዕስራን ሓሙሽተን |
-| Time | `num_to_time()` | 3:45 → ሰዓት ሰለስተን ኣርብዓን ሓሙሽተን ደቒቕን |
-| Phone | `num_to_phone()` | 07-12 → ዜሮ ሸውዓተ ዓሰርተ ክልተ |
+| Cardinals | `num_to_tigrinya(127)` | ሓደ ሚእትን ዕስራን ሸውዓተን |
+| Ordinals | `num_to_ordinal(1)` | ቀዳማይ, 25th → መበል ዕስራን ሓሙሽተን |
+| Currency | `num_to_currency(5.50)` | ሓሙሽተ ናቕፋን ሓምሳ ሳንቲምን |
+| Dates | `num_to_date(25, 12)` | ታሕሳስ ዕስራን ሓሙሽተን |
+| Time | `num_to_time(3, 45)` | ሰዓት ሰለስተን ኣርብዓን ሓሙሽተን ደቒቕን |
+| Phone | `num_to_phone("07123456")` | ዜሮ ሸውዓተ ዓሰርተ ክልተ ሰላሳን ኣርባዕተን ሓምሳን ሽድሽተን |
 
 ## Installation
 
@@ -127,12 +127,19 @@ num_to_date(1, 1, 2025)    # → 'ጥሪ ሓደ ክልተ ሽሕን ዕስራን
 from tigrinya_numbers import num_to_time
 
 # On the hour
-num_to_time(3, 0)    # → 'ሰዓት ሰለስተ'
-num_to_time(12, 0)   # → 'ሰዓት ዓሰርተ ክልተ'
+num_to_time(3)    # → 'ሰዓት ሰለስተ'
+num_to_time(12)   # → 'ሰዓት ዓሰርተ ክልተ'
 
 # With minutes
 num_to_time(3, 45)   # → 'ሰዓት ሰለስተን ኣርብዓን ሓሙሽተን ደቒቕን'
-num_to_time(12, 30)  # → 'ሰዓት ዓሰርተ ክልተን ሰላሳን ደቒቕን'
+num_to_time(12, 30)  # → 'ሰዓት ዓሰርተ ክልተን ሰላሳ ደቒቕን'
+num_to_time(12, 30, add_deqiq=False)  # → 'ሰዓት ዓሰርተ ክልተን ሰላሳን'
+
+# With minutes and seconds
+num_to_time(3, 30, 15)   # → 'ሰዓት ሰለስተን ሰላሳ ደቒቕን ዓሰርተ ሓሙሽተ ካልኢትን'
+
+# Minutes and seconds
+num_to_time(minute=30, second=15)  # → 'ሰላሳ ደቒቕን ዓሰርተ ሓሙሽተ ካልኢትን'
 ```
 
 ### Phone Numbers

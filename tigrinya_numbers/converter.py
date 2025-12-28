@@ -19,13 +19,10 @@ from .constants import (
     TENS,
     TIME_HOUR,
     TIME_MINUTE,
+    TIME_SECOND,
     ZERO_DEFAULT,
     ZERO_LOCAL,
 )
-
-# =============================================================================
-# CARDINAL NUMBERS
-# =============================================================================
 
 
 def num_to_tigrinya(n: int, add_hade: bool = True, use_bado: bool = False) -> str:
@@ -192,11 +189,6 @@ def _add_conjunction(part: str) -> str:
     return part + CONJUNCTION
 
 
-# =============================================================================
-# ORDINAL NUMBERS
-# =============================================================================
-
-
 def num_to_ordinal(n: int, feminine: bool = False) -> str:
     """
     Convert a number to Tigrinya ordinal words.
@@ -234,11 +226,6 @@ def num_to_ordinal(n: int, feminine: bool = False) -> str:
     # 11th and above: መበል + cardinal
     cardinal = num_to_tigrinya(n)
     return f"{ORDINAL_PREFIX} {cardinal}"
-
-
-# =============================================================================
-# CURRENCY
-# =============================================================================
 
 
 def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY, add_hade: bool = True) -> str:
@@ -303,15 +290,10 @@ def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY, add_hade: b
         return f"{words} {unit}"
     else:
         # Multiple parts: add conjunction to units, amounts follow cardinal rules
-        # Format: X main_unitን Y subunitን (amounts already have ן if compound)
+        # Format: X main_unitን Y subunitን (amounts already have ን if compound)
         main_words, main_unit = parts[0]
         sub_words, subunit = parts[1]
         return f"{main_words} {_add_conjunction(main_unit)} {sub_words} {_add_conjunction(subunit)}"
-
-
-# =============================================================================
-# DATE
-# =============================================================================
 
 
 def num_to_date(day: int, month: int, year: int | None = None) -> str:
@@ -354,62 +336,97 @@ def num_to_date(day: int, month: int, year: int | None = None) -> str:
         return f"{month_name} {day_words}"
 
 
-# =============================================================================
-# TIME
-# =============================================================================
-
-
-def num_to_time(hour: int, minute: int = 0) -> str:
+def num_to_time(
+    hour: int | None = None,
+    minute: int | None = None,
+    second: int | None = None,
+    add_deqiq: bool = True,
+) -> str:
     """
     Convert a time to Tigrinya words.
 
-    Format: ሰዓት X [Yን ደቒቕን] (e.g., ሰዓት ሰለስተን ኣርብዓን ሓሙሽተን ደቒቕን)
+    Linguistic Rules:
+        1. If seconds are provided, minutes MUST also be provided (cannot skip middle value).
+        2. If seconds are provided, both minute and second markers are mandatory.
+        3. If hour is omitted (None), minute marker is mandatory.
+        4. The add_deqiq option only applies when expressing hour:minute (no seconds).
+        5. Conjunction placement: goes on the marker when present, otherwise on the
+           final number (simple numbers only; compound numbers already have it).
 
     Args:
-        hour: Hour (0-23 or 1-12).
-        minute: Minute (0-59). Default is 0.
+        hour: Hour (0-23 or 1-12). None to express minutes/seconds only.
+        minute: Minute (0-59). None if not expressing minutes.
+        second: Second (0-59). None if not expressing seconds.
+        add_deqiq: Whether to add minute marker (ደቒቕ). Only applies when second=None.
 
     Returns:
         The Tigrinya time word representation.
 
     Raises:
-        ValueError: If hour or minute is out of range.
+        ValueError: If values are out of range or if second is provided without minute.
 
     Examples:
-        >>> num_to_time(3, 0)
+        >>> num_to_time(3)
         'ሰዓት ሰለስተ'
         >>> num_to_time(3, 45)
         'ሰዓት ሰለስተን ኣርብዓን ሓሙሽተን ደቒቕን'
         >>> num_to_time(12, 30)
-        'ሰዓት ዓሰርተ ክልተን ሰላሳን ደቒቕን'
+        'ሰዓት ዓሰርተ ክልተን ሰላሳ ደቒቕን'
+        >>> num_to_time(12, 30, add_deqiq=False)
+        'ሰዓት ዓሰርተ ክልተን ሰላሳን'
+        >>> num_to_time(1, 30, 45)
+        'ሰዓት ሓደን ሰላሳ ደቒቕን ኣርብዓን ሓሙሽተን ካልኢትን'
+        >>> num_to_time(minute=30)
+        'ሰላሳ ደቒቕን'
+        >>> num_to_time(minute=30, second=15)
+        'ሰላሳ ደቒቕን ዓሰርተ ሓሙሽተ ካልኢትን'
     """
-    if not (0 <= hour <= 23):
+    # Validation
+    if second is not None and minute is None:
+        raise ValueError("Cannot provide seconds without minutes")
+    if hour is not None and not (0 <= hour <= 23):
         raise ValueError(f"Hour must be 0-23, got {hour}")
-    if not (0 <= minute <= 59):
+    if minute is not None and not (0 <= minute <= 59):
         raise ValueError(f"Minute must be 0-59, got {minute}")
+    if second is not None and not (0 <= second <= 59):
+        raise ValueError(f"Second must be 0-59, got {second}")
 
-    # Handle hour 0 as 12
-    display_hour = hour if hour != 0 else 12
+    # When seconds are provided, markers are mandatory
+    if second is not None:
+        add_deqiq = True
 
-    hour_words = num_to_tigrinya(display_hour)
+    parts = []
 
-    if minute == 0:
-        # On the hour: ሰዓት X
-        return f"{TIME_HOUR} {hour_words}"
-    else:
-        # With minutes: ሰዓት Xን Yን ደቒቕን
-        minute_words = num_to_tigrinya(minute)
-        # If minute_words is compound (has spaces and ends with ן), don't add another
-        if " " in minute_words and minute_words.endswith(CONJUNCTION):
-            minute_with_conj = minute_words
+    # Process hour
+    if hour is not None:
+        display_hour = hour if hour != 0 else 12
+        hour_words = num_to_tigrinya(display_hour)
+
+        if minute is None:
+            # Hour only: ሰዓት X (no conjunction needed)
+            return f"{TIME_HOUR} {hour_words}"
         else:
-            minute_with_conj = _add_conjunction(minute_words)
-        return f"{TIME_HOUR} {_add_conjunction(hour_words)} {minute_with_conj} {_add_conjunction(TIME_MINUTE)}"
+            # Hour with more parts: conjunction on hour
+            parts.append(f"{TIME_HOUR} {_add_conjunction(hour_words)}")
 
+    # Process minutes
+    if minute is not None:
+        minute_words = num_to_tigrinya(minute)
+        if add_deqiq:
+            # Marker carries the conjunction
+            parts.append(f"{minute_words} {_add_conjunction(TIME_MINUTE)}")
+        else:
+            # No marker: conjunction on the number (if simple)
+            if not minute_words.endswith(CONJUNCTION):
+                minute_words = _add_conjunction(minute_words)
+            parts.append(minute_words)
 
-# =============================================================================
-# PHONE NUMBERS
-# =============================================================================
+    # Process seconds (marker is always added when seconds present)
+    if second is not None:
+        second_words = num_to_tigrinya(second)
+        parts.append(f"{second_words} {_add_conjunction(TIME_SECOND)}")
+
+    return " ".join(parts)
 
 
 def num_to_phone(phone: str) -> str:
