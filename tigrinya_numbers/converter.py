@@ -28,7 +28,7 @@ from .constants import (
 )
 
 
-def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = False) -> str:
+def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
     """
     Convert a number to Tigrinya words.
 
@@ -41,6 +41,7 @@ def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = Fals
         add_hade: If True, say "ሓደ ሚእቲ" for 100; if False, say "ሚእቲ".
                      Same applies to 1000, 1000000, etc.
         use_bado: If True, use "ባዶ" for zero; if False, use "ዜሮ".
+        feminine: If True, use feminine form for 1.
 
     Returns:
         The Tigrinya word representation of the number.
@@ -61,6 +62,10 @@ def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = Fals
         >>> num_to_tigrinya(3.14159)
         'ሰለስተ ነጥቢ ሓደ ኣርባዕተ ሓደ ሓሙሽተ ትሽዓተ'
     """
+    # Cardinals have only one instance where gender applies if the number is exactly 1
+    if feminine and n == 1:
+        return "ሓንቲ"
+
     # Handle decimals
     if isinstance(n, float) and not n.is_integer():
         str_n = str(n)
@@ -362,6 +367,7 @@ def num_to_date(
     year: int | None = None,
     add_hade: bool = False,
     use_numeric: bool = False,
+    month_first: bool = True,
 ) -> str:
     """
     Convert a date to Tigrinya words.
@@ -376,6 +382,7 @@ def num_to_date(
         year: Optional year (Gregorian).
         add_hade: Whether to add ሓደ before 1000 in year (default False).
         use_numeric: If True, use numeric month with day/month markers (default False).
+        month_first: If True, put month name first, "ሕዳር ዓሰርተ" vs. "ዓሰርተ ሕዳር" (default True).
 
     Returns:
         The Tigrinya date word representation.
@@ -413,9 +420,12 @@ def num_to_date(
         month_name = MONTHS[month]
         if year is not None:
             year_words = num_to_tigrinya(year, add_hade=add_hade)
-            return f"{month_name} {day_words} {year_words}"
-        else:
+            if month_first:
+                return f"{month_name} {day_words} {year_words}"
+            return f"{day_words} {month_name} {year_words}"
+        if month_first:
             return f"{month_name} {day_words}"
+        return f"{day_words} {month_name}"
 
 
 def num_to_time(

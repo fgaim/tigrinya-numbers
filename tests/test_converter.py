@@ -285,6 +285,9 @@ class TestLargeNumbers:
     def test_one_sextillion(self):
         assert num_to_tigrinya(10**21) == "ሓደ ሰክስቲልዮን"
 
+    def test_one_septillion(self):
+        assert num_to_tigrinya(10**24) == "ሓደ ሰፕቲልዮን"
+
 
 class TestComplexNumbers:
     """Test complex multi-part numbers."""
@@ -661,6 +664,31 @@ class TestDateUseNumeric:
         numeric = num_to_date(25, 12, use_numeric=True)
         assert "ታሕሳስ ዕስራን ሓሙሽተን" == calendar  # Month name in calendar
         assert "ዕለት ዕስራን ሓሙሽተን ወርሒ ዓሰርተ ክልተ" == numeric  # Month marker in numeric
+
+
+class TestDateMonthFirst:
+    """Test the month_first parameter for date ordering."""
+
+    def test_default_month_first(self):
+        # Default: month comes first
+        result = num_to_date(10, 11)
+        assert result == "ሕዳር ዓሰርተ"
+
+    def test_day_first_no_year(self):
+        # month_first=False: day comes first
+        result = num_to_date(10, 11, month_first=False)
+        assert result == "ዓሰርተ ሕዳር"
+
+    def test_day_first_with_year(self):
+        # month_first=False with year
+        result = num_to_date(25, 12, 2025, month_first=False)
+        assert result == "ዕስራን ሓሙሽተን ታሕሳስ ክልተ ሽሕን ዕስራን ሓሙሽተን"
+
+    def test_month_first_ignored_in_numeric(self):
+        # month_first has no effect in numeric mode (always ዕለት Day ወርሒ Month)
+        result_true = num_to_date(10, 11, use_numeric=True, month_first=True)
+        result_false = num_to_date(10, 11, use_numeric=True, month_first=False)
+        assert result_true == result_false == "ዕለት ዓሰርተ ወርሒ ዓሰርተ ሓደ"
 
 
 # =============================================================================

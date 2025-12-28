@@ -36,6 +36,7 @@ HUNDRED_STANDALONE = "ሚእቲ"  # Used when standing alone
 
 # Large number scales (descending order for processing)
 SCALES = [
+    (10**24, "ሰፕቲልዮን"),
     (10**21, "ሰክስቲልዮን"),
     (10**18, "ኵንቲልዮን"),
     (10**15, "ኳድሪልዮን"),
