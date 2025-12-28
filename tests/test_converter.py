@@ -290,7 +290,6 @@ class TestComplexNumbers:
     """Test complex multi-part numbers."""
 
     def test_1234567(self):
-        # User's example: 1,234,567
         # ሚልዮን gets conjunction (ሚልዮንን) when followed by more parts
         expected = "ሓደ ሚልዮንን ክልተ ሚእትን ሰላሳን ኣርባዕተን ሽሕን ሓሙሽተ ሚእትን ሱሳን ሸውዓተን"
         assert num_to_tigrinya(1_234_567) == expected
@@ -299,8 +298,8 @@ class TestComplexNumbers:
         assert num_to_tigrinya(1_000_001) == "ሓደ ሚልዮንን ሓደን"
 
     def test_1_001_000(self):
-        # Last scale (1000) should drop conjunction
-        assert num_to_tigrinya(1_001_000) == "ሓደ ሚልዮንን ሓደ ሽሕ"
+        # Multi-scale number (millions + thousands): both scales get conjunction
+        assert num_to_tigrinya(1_001_000) == "ሓደ ሚልዮንን ሓደ ሽሕን"
 
     def test_trailing_scale_conjunction(self):
         # 84,000 -> 84 thousand (scale at end, no conjunction)
@@ -797,6 +796,57 @@ class TestPhoneEdgeCases:
     def test_odd_number_of_digits(self):
         # 12 as teen, 3 as single; TODO this is not ideal
         assert num_to_phone("123") == "ዓሰርተ ክልተ ሰለስተ"
+
+
+class TestPhoneUseSingles:
+    """Test the use_singles parameter for digit-by-digit reading."""
+
+    def test_basic_singles(self):
+        # Each digit read individually
+        assert num_to_phone("1234", use_singles=True) == "ሓደ ክልተ ሰለስተ ኣርባዕተ"
+
+    def test_with_zero(self):
+        # Zero as individual digit
+        assert num_to_phone("07", use_singles=True) == "ዜሮ ሸውዓተ"
+        assert num_to_phone("0712", use_singles=True) == "ዜሮ ሸውዓተ ሓደ ክልተ"
+
+    def test_full_phone_singles(self):
+        # Full phone number in singles
+        assert num_to_phone("07123456", use_singles=True) == "ዜሮ ሸውዓተ ሓደ ክልተ ሰለስተ ኣርባዕተ ሓሙሽተ ሽዱሽተ"
+
+    def test_with_separators_singles(self):
+        # Separators should be ignored in singles mode too
+        assert num_to_phone("07-12-34", use_singles=True) == "ዜሮ ሸውዓተ ሓደ ክልተ ሰለስተ ኣርባዕተ"
+
+    def test_compare_pairs_vs_singles(self):
+        # Compare default (pairs) vs singles
+        pairs = num_to_phone("1234")  # "12" -> ዓሰርተ ክልተ, "34" -> ሰላሳን ኣርባዕተን
+        singles = num_to_phone("1234", use_singles=True)  # 1 2 3 4 individually
+        assert pairs == "ዓሰርተ ክልተ ሰላሳን ኣርባዕተን"
+        assert singles == "ሓደ ክልተ ሰለስተ ኣርባዕተ"
+        assert pairs != singles
+
+
+class TestPhoneUseBado:
+    """Test the use_bado parameter for zero word selection."""
+
+    def test_pairs_with_bado(self):
+        # Pairs mode with ባዶ for zero
+        assert num_to_phone("07", use_bado=True) == "ባዶ ሸውዓተ"
+        assert num_to_phone("07-12", use_bado=True) == "ባዶ ሸውዓተ ዓሰርተ ክልተ"
+
+    def test_singles_with_bado(self):
+        # Singles mode with ባዶ for zero
+        assert num_to_phone("07", use_singles=True, use_bado=True) == "ባዶ ሸውዓተ"
+        assert num_to_phone("0712", use_singles=True, use_bado=True) == "ባዶ ሸውዓተ ሓደ ክልተ"
+
+    def test_combined_flags(self):
+        # All combinations
+        phone = "07-34"
+        assert num_to_phone(phone) == "ዜሮ ሸውዓተ ሰላሳን ኣርባዕተን"
+        assert num_to_phone(phone, use_bado=True) == "ባዶ ሸውዓተ ሰላሳን ኣርባዕተን"
+        assert num_to_phone(phone, use_singles=True) == "ዜሮ ሸውዓተ ሰለስተ ኣርባዕተ"
+        assert num_to_phone(phone, use_singles=True, use_bado=True) == "ባዶ ሸውዓተ ሰለስተ ኣርባዕተ"
 
 
 if __name__ == "__main__":

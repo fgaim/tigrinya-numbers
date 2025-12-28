@@ -98,20 +98,28 @@ def _convert_integer(n: int, add_hade: bool, use_bado: bool) -> str:
         # Standalone: convert ሚእት to ሚእቲ (no conjunction needed)
         return parts[0].replace(HUNDRED_COMPOUND, HUNDRED_STANDALONE)
 
-    # Compound: add ን suffix to each part EXCEPT valid trailing scales
+    # Compound: add ን suffix to each part
+    # Key rule: scale words at the end don't get conjunction ONLY if the entire
+    # number is a single scale level (standalone). If multiple scale levels are
+    # present, ALL scales get conjunction (they're linked parts of a compound).
     result_parts = []
-    # Get scale words that shouldn't carry conjunction at the end
     scale_words = {s[1] for s in SCALES}
+
+    # Count how many distinct scale levels appear in parts
+    # If > 1, it's a multi-scale compound and all scales get conjunction
+    scales_in_parts = [p for p in parts if any(p.endswith(s) for s in scale_words)]
+    is_multi_scale = len(scales_in_parts) > 1
 
     for i, p in enumerate(parts):
         is_last = i == len(parts) - 1
         if is_last:
-            # Check if it's a major scale (1000, 1000000...)
-            if any(p.endswith(s) for s in scale_words):
+            # Final part: check if it's a scale word
+            is_scale = any(p.endswith(s) for s in scale_words)
+            if is_scale and not is_multi_scale:
+                # Single-scale number ending in scale: no conjunction (standalone)
                 result_parts.append(p)
             else:
-                # Digits, tens, and hundreds get conjunction
-                # Note: hundred stays as ሚእት (compound form), not normalized to ሚእቲ
+                # Multi-scale, or non-scale final part: add conjunction
                 result_parts.append(_add_conjunction(p))
         else:
             result_parts.append(_add_conjunction(p))
@@ -499,15 +507,18 @@ def num_to_time(
     return " ".join(parts)
 
 
-def num_to_phone(phone: str) -> str:
+def num_to_phone(phone: str, use_singles: bool = False, use_bado: bool = False) -> str:
     """
     Convert a phone number to Tigrinya words.
 
-    Phone numbers are read in pairs. If a pair starts with 0, it's read
+    Phone numbers are read in pairs by default. If a pair starts with 0, it's read
     digit-by-digit; otherwise, it's read as a two-digit number (teens/tens).
+    When use_singles=True, all digits are read individually.
 
     Args:
         phone: Phone number string (digits only, or with common separators).
+        use_singles: If True, read all digits individually instead of pairs.
+        use_bado: If True, use ባዶ for zero instead of ዜሮ.
 
     Returns:
         The Tigrinya phone number word representation.
@@ -517,6 +528,10 @@ def num_to_phone(phone: str) -> str:
         'ዜሮ ሸውዓተ ዓሰርተ ክልተ ሰላሳን ኣርባዕተን ሓምሳን ሽድሽተን'
         >>> num_to_phone("07-12-34-56")
         'ዜሮ ሸውዓተ ዓሰርተ ክልተ ሰላሳን ኣርባዕተን ሓምሳን ሽድሽተን'
+        >>> num_to_phone("07123456", use_singles=True)
+        'ዜሮ ሸውዓተ ሓደ ክልተ ሰለስተ ኣርባዕተ ሓሙሽተ ሽዱሽተ'
+        >>> num_to_phone("07", use_bado=True)
+        'ባዶ ሸውዓተ'
     """
     # Remove common separators
     digits = "".join(c for c in phone if c.isdigit())
@@ -524,25 +539,38 @@ def num_to_phone(phone: str) -> str:
     if not digits:
         raise ValueError("Phone number must contain at least one digit")
 
+    # Select zero word based on use_bado flag
+    zero_word = ZERO_LOCAL if use_bado else ZERO_DEFAULT
+
     parts = []
 
-    i = 0
-    while i < len(digits):
-        if i + 1 < len(digits):
-            # We have a pair
-            pair = digits[i : i + 2]
-            if pair[0] == "0":
-                # Starts with 0: read digit-by-digit
-                parts.append(ZERO_DEFAULT)
-                parts.append(DIGITS[int(pair[1])])
+    if use_singles:
+        # Single-digit mode: read each digit individually
+        for d in digits:
+            digit = int(d)
+            if digit == 0:
+                parts.append(zero_word)
             else:
-                # Read as two-digit number
-                num = int(pair)
-                parts.append(num_to_tigrinya(num))
-            i += 2
-        else:
-            # Single remaining digit
-            parts.append(DIGITS[int(digits[i])])
-            i += 1
+                parts.append(DIGITS[digit])
+    else:
+        # Pair mode: read in pairs
+        i = 0
+        while i < len(digits):
+            if i + 1 < len(digits):
+                # We have a pair
+                pair = digits[i : i + 2]
+                if pair[0] == "0":
+                    # Starts with 0: read digit-by-digit
+                    parts.append(zero_word)
+                    parts.append(DIGITS[int(pair[1])])
+                else:
+                    # Read as two-digit number
+                    num = int(pair)
+                    parts.append(num_to_tigrinya(num))
+                i += 2
+            else:
+                # Single remaining digit
+                parts.append(DIGITS[int(digits[i])])
+                i += 1
 
     return " ".join(parts)
