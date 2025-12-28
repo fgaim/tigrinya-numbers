@@ -6,7 +6,15 @@ Tests for: cardinals, ordinals, currency, date, time, phone numbers.
 
 import pytest
 
-from tigrinya_numbers import num_to_currency, num_to_date, num_to_ordinal, num_to_phone, num_to_tigrinya, num_to_time
+from tigrinya_numbers import (
+    num_to_currency,
+    num_to_date,
+    num_to_ordinal,
+    num_to_percent,
+    num_to_phone,
+    num_to_tigrinya,
+    num_to_time,
+)
 
 # =============================================================================
 # CARDINAL NUMBERS (from v1.0)
@@ -917,6 +925,40 @@ class TestPhoneUseBado:
         assert num_to_phone(phone, use_bado=True) == "ባዶ ሸውዓተ ሰላሳን ኣርባዕተን"
         assert num_to_phone(phone, use_singles=True) == "ዜሮ ሸውዓተ ሰለስተ ኣርባዕተ"
         assert num_to_phone(phone, use_singles=True, use_bado=True) == "ባዶ ሸውዓተ ሰለስተ ኣርባዕተ"
+
+
+# =============================================================================
+# PERCENT
+# =============================================================================
+
+
+class TestPercentBasic:
+    """Test basic percentage conversion."""
+
+    def test_zero_percent(self):
+        assert num_to_percent(0) == "ዜሮ ሚእታዊት"
+
+    def test_zero_percent_bado(self):
+        assert num_to_percent(0, use_bado=True) == "ባዶ ሚእታዊት"
+
+    def test_forty_percent(self):
+        assert num_to_percent(40) == "ኣርብዓ ሚእታዊት"
+
+    def test_hundred_percent(self):
+        assert num_to_percent(100) == "ሓደ ሚእቲ ሚእታዊት"
+
+    def test_compound_percent(self):
+        assert num_to_percent(25) == "ዕስራን ሓሙሽተን ሚእታዊት"
+
+
+class TestPercentDecimal:
+    """Test decimal percentage conversion."""
+
+    def test_decimal_percent(self):
+        assert num_to_percent(25.5) == "ዕስራን ሓሙሽተን ነጥቢ ሓሙሽተ ሚእታዊት"
+
+    def test_simple_decimal_percent(self):
+        assert num_to_percent(3.14) == "ሰለስተ ነጥቢ ሓደ ኣርባዕተ ሚእታዊት"
 
 
 if __name__ == "__main__":

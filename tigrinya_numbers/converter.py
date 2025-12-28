@@ -18,6 +18,7 @@ from .constants import (
     ORDINAL_PREFIX,
     ORDINALS_FEMININE,
     ORDINALS_MASCULINE,
+    PERCENT,
     SCALES,
     TENS,
     TIME_HOUR,
@@ -291,6 +292,35 @@ def num_to_ordinal(n: int, feminine: bool = False) -> str:
     # 11th and above: መበል + cardinal
     cardinal = num_to_tigrinya(n)
     return f"{ORDINAL_PREFIX} {cardinal}"
+
+
+def num_to_percent(n: int | float, use_bado: bool = False) -> str:
+    """
+    Convert a number to Tigrinya percentage form.
+
+    Percentages are formed by appending ሚእታዊት (percent) to the cardinal form.
+
+    Args:
+        n: The percentage value to convert.
+        use_bado: If True, use "ባዶ" for zero; if False, use "ዜሮ".
+
+    Returns:
+        The Tigrinya percentage word representation.
+
+    Examples:
+        >>> num_to_percent(40)
+        'ኣርብዓ ሚእታዊት'
+        >>> num_to_percent(100)
+        'ሓደ ሚእቲ ሚእታዊት'
+        >>> num_to_percent(0)
+        'ዜሮ ሚእታዊት'
+        >>> num_to_percent(0, use_bado=True)
+        'ባዶ ሚእታዊት'
+        >>> num_to_percent(25.5)
+        'ዕስራን ሓሙሽተን ነጥቢ ሓሙሽተ ሚእታዊት'
+    """
+    cardinal = num_to_tigrinya(n, use_bado=use_bado)
+    return f"{cardinal} {PERCENT}"
 
 
 def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY, add_hade: bool = True) -> str:
