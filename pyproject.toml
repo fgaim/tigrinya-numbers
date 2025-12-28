@@ -1,31 +1,30 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0,\u003c77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tigrinya-numbers"
-version = "0.1.0"
+version = "0.2.0"
 description = "Convert numbers to Tigrinya words"
 authors = [
     { name = "Fitsum Gaim", email = "fitsum@geezlab.com" }
 ]
 readme = "README.md"
-license = {text = "CC BY-SA 4.0"}
-requires-python = ">=3.9"
+license = {text = "CC-BY-SA-4.0"}
+requires-python = ">=3.8"
 dependencies = []
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: CC BY-SA 4.0",
-    "Natural Language :: Tigrinya",
+    "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
     "Topic :: Text Processing :: Linguistic",
 ]
 keywords = ["tigrinya", "numbers", "eritrea", "ethiopia", "localization", "i18n"]

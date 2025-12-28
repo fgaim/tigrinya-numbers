@@ -4,6 +4,8 @@ Tigrinya number to words converter.
 Converts integers to their Tigrinya word representation.
 """
 
+from typing import List, Optional, Union
+
 from .constants import (
     CONJUNCTION,
     CURRENCIES,
@@ -29,7 +31,7 @@ from .constants import (
 )
 
 
-def num_to_cardinal(n: int | float, add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
+def num_to_cardinal(n: Union[int, float], add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
     """
     Convert a number to Tigrinya cardinal words.
 
@@ -135,7 +137,7 @@ def _convert_integer(n: int, add_hade: bool, use_bado: bool) -> str:
     return " ".join(result_parts)
 
 
-def _build_parts(n: int, add_hade: bool) -> list[str]:
+def _build_parts(n: int, add_hade: bool) -> List[str]:
     """
     Build list of parts for a number.
 
@@ -179,7 +181,7 @@ def _build_parts(n: int, add_hade: bool) -> list[str]:
     return parts
 
 
-def _convert_under_1000(n: int, add_hade: bool) -> list[str]:
+def _convert_under_1000(n: int, add_hade: bool) -> List[str]:
     """
     Convert a number 1-999 to a list of parts.
 
@@ -294,7 +296,7 @@ def num_to_ordinal(n: int, feminine: bool = False) -> str:
     return f"{ORDINAL_PREFIX} {cardinal}"
 
 
-def num_to_percent(n: int | float, use_bado: bool = False) -> str:
+def num_to_percent(n: Union[int, float], use_bado: bool = False) -> str:
     """
     Convert a number to Tigrinya percentage form.
 
@@ -394,7 +396,7 @@ def num_to_currency(amount: float, currency: str = DEFAULT_CURRENCY, add_hade: b
 def num_to_date(
     day: int,
     month: int,
-    year: int | None = None,
+    year: Optional[int] = None,
     add_hade: bool = False,
     use_numeric: bool = False,
     month_first: bool = True,
@@ -459,9 +461,9 @@ def num_to_date(
 
 
 def num_to_time(
-    hour: int | None = None,
-    minute: int | None = None,
-    second: int | None = None,
+    hour: Optional[int] = None,
+    minute: Optional[int] = None,
+    second: Optional[int] = None,
     add_deqiq: bool = True,
     add_seat: bool = True,
 ) -> str:
@@ -640,7 +642,7 @@ def num_to_phone(phone: str, use_singles: bool = False, use_bado: bool = False) 
     return " ".join(parts)
 
 
-def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
+def num_to_tigrinya(n: Union[int, float], add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
     """
     Convert a number to Tigrinya words.
 
