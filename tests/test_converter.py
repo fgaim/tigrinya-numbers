@@ -212,20 +212,21 @@ class TestThousands:
         assert num_to_tigrinya(20000) == "ዕስራ ሽሕ"
 
     def test_twenty_five_thousand(self):
-        # Compound multiplier: scale becomes separate part
-        assert num_to_tigrinya(25000) == "ዕስራን ሓሙሽተን ሽሕን"
+        # Compound multiplier: scale becomes separate part, but no trailing conjunction
+        assert num_to_tigrinya(25000) == "ዕስራን ሓሙሽተን ሽሕ"
 
     def test_hundred_thousand(self):
         # 100 is a simple multiplier (single part), so combines with scale
         assert num_to_tigrinya(100000) == "ሓደ ሚእቲ ሽሕ"
+        assert num_to_tigrinya(100000, add_hade=False) == "ሚእቲ ሽሕ"
 
     def test_two_hundred_thousand(self):
         # 200 is also simple (round hundred)
         assert num_to_tigrinya(200000) == "ክልተ ሚእቲ ሽሕ"
 
     def test_one_hundred_one_thousand(self):
-        # 101 is compound (hundred + one), so scale becomes separate
-        assert num_to_tigrinya(101000) == "ሓደ ሚእትን ሓደን ሽሕን"
+        # 101 is compound (hundred + one), so scale becomes separate, no trailing conjunction
+        assert num_to_tigrinya(101000) == "ሓደ ሚእትን ሓደን ሽሕ"
 
 
 class TestThousandsWithRemainder:
@@ -249,6 +250,19 @@ class TestThousandsWithRemainder:
 
 class TestLargeNumbers:
     """Test millions, billions, and beyond."""
+
+    def test_standalone_scales(self):
+        assert num_to_tigrinya(10_000) == "ዓሰርተ ሽሕ"
+        assert num_to_tigrinya(34_000) == "ሰላሳን ኣርባዕተን ሽሕ"
+        assert num_to_tigrinya(34_000_000) == "ሰላሳን ኣርባዕተን ሚልዮን"
+        assert num_to_tigrinya(34_000_000_000) == "ሰላሳን ኣርባዕተን ቢልዮን"
+        assert num_to_tigrinya(134_000_000_000) == "ሓደ ሚእትን ሰላሳን ኣርባዕተን ቢልዮን"
+        assert num_to_tigrinya(134_000_000_000, add_hade=False) == "ሚእትን ሰላሳን ኣርባዕተን ቢልዮን"
+
+    def test_compound_ending_in_hundred(self):
+        assert num_to_tigrinya(34_700) == "ሰላሳን ኣርባዕተን ሽሕን ሸውዓተ ሚእትን"
+        assert num_to_tigrinya(34_000_700) == "ሰላሳን ኣርባዕተን ሚልዮንን ሸውዓተ ሚእትን"
+        assert num_to_tigrinya(34_000_000_700) == "ሰላሳን ኣርባዕተን ቢልዮንን ሸውዓተ ሚእትን"
 
     def test_one_million(self):
         assert num_to_tigrinya(1_000_000) == "ሓደ ሚልዮን"
@@ -277,6 +291,7 @@ class TestComplexNumbers:
 
     def test_1234567(self):
         # User's example: 1,234,567
+        # ሚልዮን gets conjunction (ሚልዮንን) when followed by more parts
         expected = "ሓደ ሚልዮንን ክልተ ሚእትን ሰላሳን ኣርባዕተን ሽሕን ሓሙሽተ ሚእትን ሱሳን ሸውዓተን"
         assert num_to_tigrinya(1_234_567) == expected
 
@@ -284,7 +299,18 @@ class TestComplexNumbers:
         assert num_to_tigrinya(1_000_001) == "ሓደ ሚልዮንን ሓደን"
 
     def test_1_001_000(self):
-        assert num_to_tigrinya(1_001_000) == "ሓደ ሚልዮንን ሓደ ሽሕን"
+        # Last scale (1000) should drop conjunction
+        assert num_to_tigrinya(1_001_000) == "ሓደ ሚልዮንን ሓደ ሽሕ"
+
+    def test_trailing_scale_conjunction(self):
+        # 84,000 -> 84 thousand (scale at end, no conjunction)
+        assert num_to_tigrinya(84_000) == "ሰማንያን ኣርባዕተን ሽሕ"
+
+        # 84,001 -> 84 thousand and one (scale in middle, keeps conjunction)
+        assert num_to_tigrinya(84_001) == "ሰማንያን ኣርባዕተን ሽሕን ሓደን"
+
+        # 147,000 -> 147 thousand (scale at end, no conjunction)
+        assert num_to_tigrinya(147_000) == "ሓደ ሚእትን ኣርብዓን ሸውዓተን ሽሕ"
 
     def test_12_345(self):
         # 12 thousand + 345
@@ -313,6 +339,30 @@ class TestCardinalEdgeCases:
         result = num_to_tigrinya(n)
         assert "ሰክስቲልዮን" in result
         assert "ኵንቲልዮን" in result
+
+
+class TestDecimalNumbers:
+    """Test decimal/fraction number conversion."""
+
+    def test_simple_decimal(self):
+        # 5.05 → ሓሙሽተ ነጥቢ ዜሮ ሓሙሽተ
+        assert num_to_tigrinya(5.05) == "ሓሙሽተ ነጥቢ ዜሮ ሓሙሽተ"
+
+    def test_pi(self):
+        # 3.14159 → ሰለስተ ነጥቢ ሓደ ኣርባዕተ ሓደ ሓሙሽተ ትሽዓተ
+        assert num_to_tigrinya(3.14159) == "ሰለስተ ነጥቢ ሓደ ኣርባዕተ ሓደ ሓሙሽተ ትሽዓተ"
+
+    def test_decimal_with_zero_integer(self):
+        # 0.5 → ዜሮ ነጥቢ ሓሙሽተ
+        assert num_to_tigrinya(0.5) == "ዜሮ ነጥቢ ሓሙሽተ"
+
+    def test_decimal_with_leading_zeros(self):
+        # 1.01 → ሓደ ነጥቢ ዜሮ ሓደ
+        assert num_to_tigrinya(1.01) == "ሓደ ነጥቢ ዜሮ ሓደ"
+
+    def test_integer_float_treated_as_integer(self):
+        # 5.0 should be treated as integer 5
+        assert num_to_tigrinya(5.0) == "ሓሙሽተ"
 
 
 class TestIncludeOneOption:
@@ -609,9 +659,17 @@ class TestTimeWithMinutes:
         assert num_to_time(1, 15, add_deqiq=False) == "ሰዓት ሓደን ዓሰርተ ሓሙሽተን"
 
     def test_minute_only(self):
-        # No hour: minute marker is mandatory
-        assert num_to_time(minute=30) == "ሰላሳ ደቒቕን"
-        assert num_to_time(minute=45) == "ኣርብዓን ሓሙሽተን ደቒቕን"
+        # No hour: minute marker is mandatory, no conjunction (single component)
+        assert num_to_time(minute=30) == "ሰላሳ ደቒቕ"
+        assert num_to_time(minute=45) == "ኣርብዓን ሓሙሽተን ደቒቕ"
+
+    def test_second_only(self):
+        assert num_to_time(second=5) == "ሓሙሽተ ካልኢት"
+        assert num_to_time(second=45) == "ኣርብዓን ሓሙሽተን ካልኢት"
+
+    def test_hour_only(self):
+        assert num_to_time(hour=1) == "ሰዓት ሓደ"
+        assert num_to_time(hour=12) == "ሰዓት ዓሰርተ ክልተ"
 
 
 class TestTimeWithSeconds:
@@ -629,10 +687,9 @@ class TestTimeWithSeconds:
         # No hour: both markers mandatory
         assert num_to_time(minute=30, second=15) == "ሰላሳ ደቒቕን ዓሰርተ ሓሙሽተ ካልኢትን"
 
-    def test_seconds_without_minutes_raises_error(self):
-        # Cannot skip middle value
-        with pytest.raises(ValueError, match="Cannot provide seconds without minutes"):
-            num_to_time(5, second=30)
+    def test_hour_and_seconds_only(self):
+        # Hour with seconds, no minutes (10:00:05)
+        assert num_to_time(10, 0, 5) == "ሰዓት ዓሰርተን ሓሙሽተ ካልኢትን"
 
 
 class TestTimeEdgeCases:
@@ -653,6 +710,35 @@ class TestTimeEdgeCases:
     def test_invalid_second_raises_error(self):
         with pytest.raises(ValueError, match="Second must be 0-59"):
             num_to_time(12, 30, 60)
+
+
+class TestTimeAddSeat:
+    """Test the add_seat parameter for optional hour prefix."""
+
+    def test_hour_only_without_seat(self):
+        # Hour without prefix
+        assert num_to_time(3, add_seat=False) == "ሰለስተ"
+        assert num_to_time(12, add_seat=False) == "ዓሰርተ ክልተ"
+
+    def test_hour_and_minutes_without_seat(self):
+        # Hour:minute without prefix
+        assert num_to_time(3, 45, add_seat=False) == "ሰለስተን ኣርብዓን ሓሙሽተን ደቒቕን"
+        assert num_to_time(7, 30, add_seat=False) == "ሸውዓተን ሰላሳ ደቒቕን"
+
+    def test_hour_minutes_seconds_without_seat(self):
+        # Full time without prefix
+        assert num_to_time(2, 37, 48, add_seat=False) == "ክልተን ሰላሳን ሸውዓተን ደቒቕን ኣርብዓን ሸሞንተን ካልኢትን"
+
+    def test_combined_options(self):
+        # Without prefix and without minute marker
+        assert num_to_time(3, 45, add_seat=False, add_deqiq=False) == "ሰለስተን ኣርብዓን ሓሙሽተን"
+        # With prefix but without minute marker (default add_seat=True)
+        assert num_to_time(3, 45, add_deqiq=False) == "ሰዓት ሰለስተን ኣርብዓን ሓሙሽተን"
+
+    def test_midnight_without_seat(self):
+        # Midnight (hour 0 displays as 12) without prefix
+        assert num_to_time(0, add_seat=False) == "ዓሰርተ ክልተ"
+        assert num_to_time(0, 30, add_seat=False) == "ዓሰርተ ክልተን ሰላሳ ደቒቕን"
 
 
 # =============================================================================

@@ -61,6 +61,14 @@ num_to_tigrinya(127)    # → 'ሓደ ሚእትን ዕስራን ሸውዓተን'
 num_to_tigrinya(1_234_567)
 # → 'ሓደ ሚልዮንን ክልተ ሚእትን ሰላሳን ኣርባዕተን ሽሕን ሓሙሽተ ሚእትን ሱሳን ሸውዓተን'
 
+# Negative numbers (prefix: ኣሉታ)
+num_to_tigrinya(-5)        # → 'ኣሉታ ሓሙሽተ'
+num_to_tigrinya(-127)      # → 'ኣሉታ ሓደ ሚእትን ዕስራን ሸውዓተን'
+
+# Decimals (ነጥቢ = point, mantissa digit-by-digit)
+num_to_tigrinya(5.05)      # → 'ሓሙሽተ ነጥቢ ዜሮ ሓሙሽተ'
+num_to_tigrinya(3.14159)   # → 'ሰለስተ ነጥቢ ሓደ ኣርባዕተ ሓደ ሓሙሽተ ትሽዓተ'
+
 # Options
 num_to_tigrinya(0)                     # → 'ዜሮ' (loan word, default)
 num_to_tigrinya(0, use_bado=True)      # → 'ባዶ' (local word)
