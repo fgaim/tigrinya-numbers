@@ -36,11 +36,21 @@ from .constants import (
     ZERO_DEFAULT,
     ZERO_LOCAL,
 )
-from .converter import num_to_currency, num_to_date, num_to_ordinal, num_to_percent, num_to_phone, num_to_tigrinya, num_to_time
+from .converter import (
+    num_to_cardinal,
+    num_to_currency,
+    num_to_date,
+    num_to_ordinal,
+    num_to_percent,
+    num_to_phone,
+    num_to_tigrinya,
+    num_to_time,
+)
 
 __version__ = "0.1.0"
 __all__ = [
     # Functions
+    "num_to_cardinal",
     "num_to_tigrinya",
     "num_to_ordinal",
     "num_to_percent",

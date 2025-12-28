@@ -29,9 +29,9 @@ from .constants import (
 )
 
 
-def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
+def num_to_cardinal(n: int | float, add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
     """
-    Convert a number to Tigrinya words.
+    Convert a number to Tigrinya cardinal words.
 
     Supports integers and decimal numbers. For decimals, the integer part is
     read normally, followed by ነጥቢ (point), then each digit of the mantissa
@@ -48,19 +48,19 @@ def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = Fals
         The Tigrinya word representation of the number.
 
     Examples:
-        >>> num_to_tigrinya(0)
+        >>> num_to_cardinal(0)
         'ዜሮ'
-        >>> num_to_tigrinya(7)
+        >>> num_to_cardinal(7)
         'ሸውዓተ'
-        >>> num_to_tigrinya(15)
+        >>> num_to_cardinal(15)
         'ዓሰርተ ሓሙሽተ'
-        >>> num_to_tigrinya(25)
+        >>> num_to_cardinal(25)
         'ዕስራን ሓሙሽተን'
-        >>> num_to_tigrinya(127)
+        >>> num_to_cardinal(127)
         'ሓደ ሚእትን ዕስራን ሸውዓተን'
-        >>> num_to_tigrinya(5.05)
+        >>> num_to_cardinal(5.05)
         'ሓሙሽተ ነጥቢ ዜሮ ሓሙሽተ'
-        >>> num_to_tigrinya(3.14159)
+        >>> num_to_cardinal(3.14159)
         'ሰለስተ ነጥቢ ሓደ ኣርባዕተ ሓደ ሓሙሽተ ትሽዓተ'
     """
     # Cardinals have only one instance where gender applies if the number is exactly 1
@@ -638,3 +638,41 @@ def num_to_phone(phone: str, use_singles: bool = False, use_bado: bool = False) 
                 i += 1
 
     return " ".join(parts)
+
+
+def num_to_tigrinya(n: int | float, add_hade: bool = True, use_bado: bool = False, feminine: bool = False) -> str:
+    """
+    Convert a number to Tigrinya words.
+
+    This is the primary entry function for number-to-words conversion. Currently,
+    it handles cardinal numbers, negatives, and decimals by forwarding to
+    `num_to_cardinal`.
+
+    Args:
+        n: The number to convert (integer or float).
+        add_hade: If True, say "ሓደ ሚእቲ" for 100; if False, say "ሚእቲ".
+                     Same applies to 1000, 1000000, etc. Default: True.
+        use_bado: If True, use "ባዶ" for zero; if False, use "ዜሮ". Default: False.
+        feminine: If True, use feminine form for 1 ("ሓንቲ"). Default: False.
+
+    Returns:
+        The Tigrinya word representation of the number.
+
+    Note:
+        Future enhancement: This function is intended to become a unified entry
+        point that can auto-detect and handle multiple number types (cardinals,
+        ordinals, currency, dates, times, percentages, phone numbers) by parsing
+        input strings with pattern recognition. For now, it handles cardinal
+        numbers only.
+
+    Examples:
+        >>> num_to_tigrinya(0)
+        'ዜሮ'
+        >>> num_to_tigrinya(127)
+        'ሓደ ሚእትን ዕስራን ሸውዓተን'
+        >>> num_to_tigrinya(3.14)
+        'ሰለስተ ነጥቢ ሓደ ኣርባዕተ'
+        >>> num_to_tigrinya(-5)
+        'ኣሉታ ሓሙሽተ'
+    """
+    return num_to_cardinal(n, add_hade=add_hade, use_bado=use_bado, feminine=feminine)
